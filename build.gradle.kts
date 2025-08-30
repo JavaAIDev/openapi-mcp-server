@@ -28,6 +28,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:${logbackVersion}")
     implementation("io.ktor:ktor-client-content-negotiation:${ktorVersion}")
     implementation("io.ktor:ktor-serialization-kotlinx-json:${ktorVersion}")
+    implementation("io.ktor:ktor-client-logging:${ktorVersion}")
     implementation("info.picocli:picocli:${picocliVersion}")
     implementation("io.swagger.parser.v3:swagger-parser:${swaggerParserVersion}")
     testImplementation(kotlin("test"))

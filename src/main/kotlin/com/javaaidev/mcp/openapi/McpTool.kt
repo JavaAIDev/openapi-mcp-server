@@ -3,6 +3,7 @@ package com.javaaidev.mcp.openapi
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -32,6 +33,11 @@ object McpToolHelper {
                 prettyPrint = true
             })
         }
+        install(Logging) {
+            logger = Logger.DEFAULT
+            level = LogLevel.INFO
+            sanitizeHeader { header -> header == HttpHeaders.Authorization }
+        }
     }
 
     fun toTools(openAPI: OpenAPI): List<McpTool> {
@@ -58,7 +64,7 @@ object McpToolHelper {
     ): McpTool {
         val name = operation.operationId ?: "${httpMethod}_$path"
         val description = operation.description ?: (operation.summary ?: "")
-        val parameters = operationParameters(operation, components)
+        val (parameters, requiredParams) = operationParameters(operation, components)
         val requestBody = operationRequestBody(operation, components)
         val responseBody = operationResponseBody(operation, components)
         val toolAnnotations = if (httpMethod == "GET")
@@ -76,7 +82,10 @@ object McpToolHelper {
                             "parameters" to JsonObject(
                                 mapOf(
                                     "type" to JsonPrimitive("object"),
-                                    "properties" to parameters
+                                    "properties" to parameters,
+                                    "required" to JsonArray((requiredParams ?: listOf()).map {
+                                        JsonPrimitive(it)
+                                    })
                                 )
                             ),
                             "requestBody" to requestBody,
@@ -84,7 +93,7 @@ object McpToolHelper {
                     )
                 )
             } else if (parameters?.isNotEmpty() == true) {
-                Tool.Input(parameters, parameters.keys.toList())
+                Tool.Input(parameters, requiredParams)
             } else if (requestBody?.isNotEmpty() == true) {
                 Tool.Input(
                     requestBody["properties"] as? JsonObject ?: JsonObject(mapOf()),
@@ -127,14 +136,16 @@ object McpToolHelper {
     private fun operationParameters(
         operation: Operation,
         components: Map<String, Schema<*>>?
-    ): JsonObject? {
-        return operation.parameters?.filter { parameter ->
+    ): Pair<JsonObject?, List<String>?> {
+        val parameters = operation.parameters?.filter { parameter ->
             setOf("query", "path").contains(parameter.`in`)
-        }?.associate { parameter ->
+        }
+        val required = parameters?.filter { it.required }?.map { it.name }
+        return (parameters?.associate { parameter ->
             parameter.name to schemaToJsonObject(parameter.schema, components, parameter)
         }?.let {
             JsonObject(it)
-        }
+        } to required)
     }
 
     private fun operationRequestBody(operation: Operation, components: Map<String, Schema<*>>?) =
@@ -232,7 +243,9 @@ object McpToolHelper {
     private fun expandUriTemplate(template: String, values: JsonObject): String {
         var result = template
         values.forEach { (key, value) ->
-            result = result.replace("{$key}", value.toString())
+            if (value is JsonPrimitive) {
+                result = result.replace("{$key}", value.contentOrNull ?: "")
+            }
         }
         return result
     }

@@ -13,10 +13,12 @@ import kotlinx.io.buffered
 
 object McpServer {
     fun start(openapiSpec: String) {
+        val openAPI = OpenAPIParser.parse(openapiSpec)
+
         val server = Server(
             Implementation(
-                name = "openapi",
-                version = "1.0.0"
+                name = openAPI.info?.title ?: "openapi-mcp-server",
+                version = openAPI.info?.version ?: "1.0.0"
             ),
             ServerOptions(
                 capabilities = ServerCapabilities(
@@ -26,13 +28,12 @@ object McpServer {
             )
         )
 
-        val openAPI = OpenAPIParser.parse(openapiSpec)
         McpToolHelper.toTools(openAPI).forEach { tool ->
             server.addTool(tool.tool, tool.handler)
         }
 
         val transport = StdioServerTransport(
-            System.`in`.asInput(),
+            System.`in`.asInput().buffered(),
             System.out.asSink().buffered()
         )
 
