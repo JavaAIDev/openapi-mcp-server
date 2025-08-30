@@ -16,6 +16,45 @@ import io.swagger.v3.oas.models.media.Schema
 import io.swagger.v3.oas.models.media.StringSchema
 import io.swagger.v3.oas.models.parameters.Parameter
 import kotlinx.serialization.json.*
+import org.apache.commons.lang3.StringUtils
+import java.util.function.Supplier
+
+data class OpenAPIOperation(
+    val operation: Operation,
+    val httpMethod: String,
+    val path: String,
+)
+
+data class OpenAPIOperationFilter(
+    val operationIds: List<String>? = null,
+    val httpMethods: List<String>? = null,
+    val paths: List<String>? = null,
+) {
+    fun match(operation: OpenAPIOperation): Boolean {
+        val checkers = mutableListOf<Supplier<Boolean>>()
+        operationIds?.let {
+            checkers.add {
+                StringUtils.isNotBlank(operation.operation.operationId)
+                        && it.contains(operation.operation.operationId)
+            }
+        }
+        httpMethods?.let {
+            checkers.add {
+                it.any { method ->
+                    method.equals(operation.httpMethod, true)
+                }
+            }
+        }
+        paths?.let {
+            checkers.add {
+                it.any { path ->
+                    path.equals(operation.path, true)
+                }
+            }
+        }
+        return checkers.all { it.get() }
+    }
+}
 
 data class McpTool(
     val tool: Tool,
@@ -46,18 +85,29 @@ object McpToolHelper {
         }
     }
 
-    fun toTools(openAPI: OpenAPI): List<McpTool> {
+    fun toTools(
+        openAPI: OpenAPI,
+        openAPIOperationFilter: OpenAPIOperationFilter? = null
+    ): List<McpTool> {
+        logger.info("Create tools with filter {}", openAPIOperationFilter)
         val serverUrl = openAPI.servers.first().url
         val components = openAPI.components?.schemas
-        return openAPI.paths?.entries?.flatMap { entry ->
+        val operations = openAPI.paths?.entries?.flatMap { entry ->
             val path = entry.key
             listOfNotNull(
-                entry.value.get?.let { toTool(serverUrl, it, "GET", path, components) },
-                entry.value.post?.let { toTool(serverUrl, it, "POST", path, components) },
-                entry.value.put?.let { toTool(serverUrl, it, "PUT", path, components) },
-                entry.value.delete?.let { toTool(serverUrl, it, "DELETE", path, components) },
-                entry.value.patch?.let { toTool(serverUrl, it, "PATCH", path, components) },
+                entry.value.get?.let { OpenAPIOperation(it, "GET", path) },
+                entry.value.post?.let { OpenAPIOperation(it, "POST", path) },
+                entry.value.put?.let { OpenAPIOperation(it, "PUT", path) },
+                entry.value.delete?.let { OpenAPIOperation(it, "DELETE", path) },
+                entry.value.patch?.let { OpenAPIOperation(it, "PATCH", path) },
             )
+        }?.also {
+            logger.info("Found {} operations", it.size)
+        }?.filter { operation -> openAPIOperationFilter?.match(operation) ?: true }?.also {
+            logger.info("Use {} operations after filtering", it.size)
+        }
+        return operations?.map {
+            toTool(serverUrl, it.operation, it.httpMethod, it.path, components)
         } ?: listOf()
     }
 

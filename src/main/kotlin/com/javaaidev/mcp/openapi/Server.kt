@@ -10,9 +10,15 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.runBlocking
 import kotlinx.io.asSink
 import kotlinx.io.buffered
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+val logger: Logger = LoggerFactory.getLogger("McpServer")
 
 object McpServer {
-    fun start(openapiSpec: String) {
+
+    fun start(openapiSpec: String, openAPIOperationFilter: OpenAPIOperationFilter? = null) {
+        logger.info("Parse OpenAPI spec {} ", openapiSpec)
         val openAPI = OpenAPIParser.parse(openapiSpec)
 
         val server = Server(
@@ -28,7 +34,7 @@ object McpServer {
             )
         )
 
-        McpToolHelper.toTools(openAPI).forEach { tool ->
+        McpToolHelper.toTools(openAPI, openAPIOperationFilter).forEach { tool ->
             server.addTool(tool.tool, tool.handler)
         }
 

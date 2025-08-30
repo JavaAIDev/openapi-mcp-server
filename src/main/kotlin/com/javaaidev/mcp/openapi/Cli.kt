@@ -4,10 +4,6 @@ import picocli.CommandLine
 import java.util.concurrent.Callable
 import kotlin.system.exitProcess
 
-enum class TransportType {
-    stdio, httpSse, streamableHttp
-}
-
 @CommandLine.Command(
     name = "openapi-mcp",
     mixinStandardHelpOptions = true,
@@ -19,14 +15,31 @@ class Cli : Callable<Int> {
     lateinit var openapiSpec: String
 
     @CommandLine.Option(
-        names = ["--transport"],
-        defaultValue = "stdio",
-        description = [$$"MCP transport type. Valid values: ${COMPLETION-CANDIDATES}"],
+        names = ["--include-operation-id"],
+        split = ",",
+        description = ["Include operations with id (comma separated)"]
     )
-    var transportType: TransportType = TransportType.stdio
+    private val includeOperationIds: List<String>? = null
+
+    @CommandLine.Option(
+        names = ["--include-http-method"],
+        split = ",",
+        description = ["Include operations with HTTP methods (comma separated)"]
+    )
+    private val includeHttpMethods: List<String>? = null
+
+    @CommandLine.Option(
+        names = ["--include-path"],
+        split = ",",
+        description = ["Include operations with paths (comma separated)"]
+    )
+    private val includePaths: List<String>? = null
 
     override fun call(): Int {
-        McpServer.start(openapiSpec)
+        McpServer.start(
+            openapiSpec,
+            OpenAPIOperationFilter(includeOperationIds, includeHttpMethods, includePaths)
+        )
         return 0
     }
 }
