@@ -75,3 +75,10 @@ jobs:
           provenance: true
           sbom: true
 
+      - name: Create a Github Release
+        uses: ncipollo/release-action@v1
+        with:
+          token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          body: ${{ github.ref_name }}
+          generateReleaseNotes: true
