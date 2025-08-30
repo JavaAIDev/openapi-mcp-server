@@ -1,8 +1,13 @@
 <configuration>
 
+  <property name="LOG_DIR" value="${LOG_DIR:-/var/log/app}"/>
+
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-    <file>openapi-mcp-server.log</file>
-    <append>true</append>
+    <file>${LOG_DIR}/server.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_DIR}/server.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>7</maxHistory>
+    </rollingPolicy>
     <immediateFlush>true</immediateFlush>
     <encoder>
       <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n</pattern>

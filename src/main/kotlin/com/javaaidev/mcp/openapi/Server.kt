@@ -33,7 +33,7 @@ object McpServer {
         }
 
         val transport = StdioServerTransport(
-            System.`in`.asInput().buffered(),
+            System.`in`.asInput(),
             System.out.asSink().buffered()
         )
 
