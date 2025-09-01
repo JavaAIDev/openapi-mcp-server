@@ -49,5 +49,11 @@ class McpToolHelperTest {
             )
         )
         assertEquals(1, tools.size)
+        tools = McpToolHelper.toTools(
+            openAPI, OpenAPIOperationFilter(
+                tags = listOf("holidays")
+            )
+        )
+        assertEquals(2, tools.size)
     }
 }

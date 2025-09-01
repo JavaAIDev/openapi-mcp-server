@@ -29,6 +29,7 @@ data class OpenAPIOperationFilter(
     val operationIds: List<String>? = null,
     val httpMethods: List<String>? = null,
     val paths: List<String>? = null,
+    val tags: List<String>? = null,
 ) {
     fun match(operation: OpenAPIOperation): Boolean {
         val checkers = mutableListOf<Supplier<Boolean>>()
@@ -50,6 +51,12 @@ data class OpenAPIOperationFilter(
                 it.any { path ->
                     path.equals(operation.path, true)
                 }
+            }
+        }
+        tags?.let {
+            checkers.add {
+                !operation.operation.tags.isNullOrEmpty() &&
+                        it.intersect(operation.operation.tags).isNotEmpty()
             }
         }
         return checkers.all { it.get() }

@@ -35,10 +35,22 @@ class Cli : Callable<Int> {
     )
     private val includePaths: List<String>? = null
 
+    @CommandLine.Option(
+        names = ["--include-tag"],
+        split = ",",
+        description = ["Include operations with tags (comma separated)"]
+    )
+    private val includeTags: List<String>? = null
+
     override fun call(): Int {
         McpServer.start(
             openapiSpec,
-            OpenAPIOperationFilter(includeOperationIds, includeHttpMethods, includePaths)
+            OpenAPIOperationFilter(
+                includeOperationIds,
+                includeHttpMethods,
+                includePaths,
+                includeTags
+            )
         )
         return 0
     }
