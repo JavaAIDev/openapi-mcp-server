@@ -7,7 +7,7 @@ import kotlin.system.exitProcess
 @CommandLine.Command(
     name = "openapi-mcp",
     mixinStandardHelpOptions = true,
-    version = ["0.1.1"],
+    version = ["0.1.2"],
     description = ["Run OpenAPI MCP server"],
 )
 class Cli : Callable<Int> {
