@@ -81,4 +81,5 @@ jobs:
           token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           body: ${{ github.ref_name }}
+          artifacts: "build/libs/openapi-mcp-server-*-all.jar"
           generateReleaseNotes: true
