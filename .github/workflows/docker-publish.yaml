@@ -10,14 +10,12 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: JavaAIDev/openapi-mcp-server
 
-permissions:
-  contents: write
 
 jobs:
   push-image:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
       attestations: write
       id-token: write
