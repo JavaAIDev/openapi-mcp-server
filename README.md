@@ -49,7 +49,7 @@ Run OpenAPI MCP server
 Download latest [release JAR file](https://github.com/JavaAIDev/openapi-mcp-server/releases) and run it using `java -jar`.
 
 ```sh
-java -jar openapi-mcp-server-0.1.2-all.jar https://api.apis.guru/v2/specs/exchangerate-api.com/4/openapi.json
+java -jar openapi-mcp-server-0.1.3-all.jar https://api.apis.guru/v2/specs/exchangerate-api.com/4/openapi.json
 ```
 
 ### Container

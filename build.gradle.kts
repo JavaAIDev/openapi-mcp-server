@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.javaaidev"
-version = "0.1.2"
+version = "0.1.3"
 
 val mcpVersion = "0.7.0"
 val slf4jVersion = "2.0.17"
