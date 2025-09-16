@@ -125,18 +125,17 @@ object McpToolHelper {
         path: String,
         components: Map<String, Schema<*>>?
     ): McpTool {
-        val name = operation.operationId ?: "${httpMethod}_$path"
+        val name = sanitizeToolName(operation.operationId ?: "${httpMethod}_$path")
         val description = operation.description ?: (operation.summary ?: "")
         val (parameters, requiredParams) = operationParameters(operation, components)
         val requestBody = operationRequestBody(operation, components)
         val responseBody = operationResponseBody(operation, components)
         val toolAnnotations = if (httpMethod == "GET")
             ToolAnnotations(
-                operation.operationId,
+                name,
                 readOnlyHint = true,
                 destructiveHint = false,
-                openWorldHint = false
-            ) else ToolAnnotations(operation.operationId, openWorldHint = false)
+            ) else ToolAnnotations(name)
         val toolInput =
             if (parameters?.isNotEmpty() == true && requestBody?.isNotEmpty() == true) {
                 Tool.Input(
@@ -166,13 +165,26 @@ object McpToolHelper {
                 Tool.Input()
             }
         val tool = Tool(
-            name, description, toolInput, responseBody?.let { Tool.Output(it) }, toolAnnotations
+            name,
+            name,
+            description,
+            toolInput,
+            responseBody?.let { Tool.Output(it) },
+            toolAnnotations
         )
         val urlTemplate = serverUrl.removeSuffix("/") + "/" + path.removePrefix("/")
         return McpTool(tool) { request ->
             callApi(urlTemplate, httpMethod, request)
         }
     }
+
+    private fun sanitizeToolName(input: String): String {
+        return input
+            .replace(Regex("[^A-Za-z0-9]"), "_")
+            .replace(Regex("_+"), "_")
+            .trim('_')
+    }
+
 
     private suspend fun callApi(
         urlTemplate: String,

@@ -7,12 +7,12 @@ plugins {
 group = "com.javaaidev"
 version = "0.1.2"
 
-val mcpVersion = "0.6.0"
+val mcpVersion = "0.7.0"
 val slf4jVersion = "2.0.17"
 val logbackVersion = "1.5.18"
-val ktorVersion = "3.1.1"
+val ktorVersion = "3.3.0"
 val picocliVersion = "4.7.7"
-val swaggerParserVersion = "2.1.31"
+val swaggerParserVersion = "2.1.33"
 
 repositories {
     mavenCentral()
@@ -26,6 +26,7 @@ dependencies {
     implementation("io.modelcontextprotocol:kotlin-sdk:${mcpVersion}")
     implementation("org.slf4j:slf4j-api:${slf4jVersion}")
     implementation("ch.qos.logback:logback-classic:${logbackVersion}")
+    implementation("io.ktor:ktor-client-cio:${ktorVersion}")
     implementation("io.ktor:ktor-client-content-negotiation:${ktorVersion}")
     implementation("io.ktor:ktor-serialization-kotlinx-json:${ktorVersion}")
     implementation("io.ktor:ktor-client-logging:${ktorVersion}")

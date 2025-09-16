@@ -49,7 +49,7 @@ Run OpenAPI MCP server
 Download latest [release JAR file](https://github.com/JavaAIDev/openapi-mcp-server/releases) and run it using `java -jar`.
 
 ```sh
-java -jar openapi-mcp-server-0.1.2-all.jar https://api.apis.guru/v2/specs/canada-holidays.ca/1.8.0/openapi.json
+java -jar openapi-mcp-server-0.1.2-all.jar https://api.apis.guru/v2/specs/exchangerate-api.com/4/openapi.json
 ```
 
 ### Container
@@ -57,5 +57,5 @@ java -jar openapi-mcp-server-0.1.2-all.jar https://api.apis.guru/v2/specs/canada
 Use Docker or Podman to run the container.
 
 ```sh
-docker run -i ghcr.io/javaaidev/openapi-mcp-server https://api.apis.guru/v2/specs/canada-holidays.ca/1.8.0/openapi.json
+docker run -i ghcr.io/javaaidev/openapi-mcp-server https://api.apis.guru/v2/specs/exchangerate-api.com/4/openapi.json
 ```
