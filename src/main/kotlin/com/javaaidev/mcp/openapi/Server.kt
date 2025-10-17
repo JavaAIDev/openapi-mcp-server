@@ -17,7 +17,12 @@ val logger: Logger = LoggerFactory.getLogger("McpServer")
 
 object McpServer {
 
-    fun start(openapiSpec: String, openAPIOperationFilter: OpenAPIOperationFilter? = null) {
+    fun start(
+        openapiSpec: String,
+        openAPIOperationFilter: OpenAPIOperationFilter? = null,
+        queryParams: Map<String, String>? = null,
+        headers: Map<String, String>? = null,
+    ) {
         logger.info("Parse OpenAPI spec {} ", openapiSpec)
         val openAPI = OpenAPIParser.parse(openapiSpec)
 
@@ -34,9 +39,11 @@ object McpServer {
             )
         )
 
-        McpToolHelper.toTools(openAPI, openAPIOperationFilter).forEach { tool ->
-            server.addTool(tool.tool, tool.handler)
-        }
+        logger.info("params: {}", queryParams)
+        McpToolHelper.toTools(openAPI, openAPIOperationFilter, queryParams, headers)
+            .forEach { tool ->
+                server.addTool(tool.tool, tool.handler)
+            }
 
         val transport = StdioServerTransport(
             System.`in`.asInput(),

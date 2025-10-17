@@ -7,7 +7,7 @@ import kotlin.system.exitProcess
 @CommandLine.Command(
     name = "openapi-mcp",
     mixinStandardHelpOptions = true,
-    version = ["0.1.3"],
+    version = ["0.1.4"],
     description = ["Run OpenAPI MCP server"],
 )
 class Cli : Callable<Int> {
@@ -42,6 +42,20 @@ class Cli : Callable<Int> {
     )
     private val includeTags: List<String>? = null
 
+    @CommandLine.Option(
+        names = ["--header"],
+        split = ",",
+        description = ["Headers (comma separated with format a=b)"]
+    )
+    private val headers: List<String>? = null
+
+    @CommandLine.Option(
+        names = ["--query-param"],
+        split = ",",
+        description = ["Query params (comma separated with format a=b)"]
+    )
+    private val queryParams: List<String>? = null
+
     override fun call(): Int {
         McpServer.start(
             openapiSpec,
@@ -50,10 +64,16 @@ class Cli : Callable<Int> {
                 includeHttpMethods,
                 includePaths,
                 includeTags
-            )
+            ),
+            parseToMap(queryParams),
+            parseToMap(headers),
         )
         return 0
     }
+
+    private fun parseToMap(values: List<String>?) = values?.map {
+        it.split("=")
+    }?.filter { it.size == 2 }?.associate { it[0] to it[1] }
 }
 
 fun main(args: Array<String>) {

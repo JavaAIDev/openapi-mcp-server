@@ -1,6 +1,6 @@
 <configuration>
 
-  <property name="LOG_DIR" value="${LOG_DIR:-/var/log/app}"/>
+  <property name="LOG_DIR" value="${LOG_DIR:-/tmp/openapi-mcp-server}"/>
 
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
     <file>${LOG_DIR}/server.log</file>

@@ -94,7 +94,9 @@ object McpToolHelper {
 
     fun toTools(
         openAPI: OpenAPI,
-        openAPIOperationFilter: OpenAPIOperationFilter? = null
+        openAPIOperationFilter: OpenAPIOperationFilter? = null,
+        queryParams: Map<String, String>? = null,
+        headers: Map<String, String>? = null,
     ): List<McpTool> {
         logger.info("Create tools with filter {}", openAPIOperationFilter)
         val serverUrl = openAPI.servers.first().url
@@ -114,7 +116,15 @@ object McpToolHelper {
             logger.info("Use {} operations after filtering", it.size)
         }
         return operations?.map {
-            toTool(serverUrl, it.operation, it.httpMethod, it.path, components)
+            toTool(
+                serverUrl,
+                it.operation,
+                it.httpMethod,
+                it.path,
+                components,
+                queryParams,
+                headers
+            )
         } ?: listOf()
     }
 
@@ -123,7 +133,9 @@ object McpToolHelper {
         operation: Operation,
         httpMethod: String,
         path: String,
-        components: Map<String, Schema<*>>?
+        components: Map<String, Schema<*>>?,
+        queryParams: Map<String, String>? = null,
+        headers: Map<String, String>? = null,
     ): McpTool {
         val name = sanitizeToolName(operation.operationId ?: "${httpMethod}_$path")
         val description = operation.description ?: (operation.summary ?: "")
@@ -174,7 +186,7 @@ object McpToolHelper {
         )
         val urlTemplate = serverUrl.removeSuffix("/") + "/" + path.removePrefix("/")
         return McpTool(tool) { request ->
-            callApi(urlTemplate, httpMethod, request)
+            callApi(urlTemplate, httpMethod, request, queryParams, headers)
         }
     }
 
@@ -189,13 +201,22 @@ object McpToolHelper {
     private suspend fun callApi(
         urlTemplate: String,
         httpMethod: String,
-        request: CallToolRequest
+        request: CallToolRequest,
+        queryParams: Map<String, String>? = null,
+        extraHeaders: Map<String, String>? = null,
     ): CallToolResult {
         return httpClient.request {
-            url(
-                parseUrl(expandUriTemplate(urlTemplate, request.arguments))
-                    ?: throw RuntimeException("Invalid url")
-            )
+            url {
+                takeFrom(
+                    parseUrl(expandUriTemplate(urlTemplate, request.arguments))
+                        ?: throw RuntimeException("Invalid url")
+                )
+                queryParams?.let { params ->
+                    params.forEach { (k, v) ->
+                        parameters.append(k, v)
+                    }
+                }
+            }
             method = when (httpMethod) {
                 "PUT" -> HttpMethod.Put
                 "POST" -> HttpMethod.Post
@@ -203,6 +224,13 @@ object McpToolHelper {
                 "DELETE" -> HttpMethod.Delete
                 else -> HttpMethod.Get
             }
+            extraHeaders?.let {
+                it.forEach { (k, v) ->
+                    headers.append(k, v)
+                }
+            }
+            contentType(ContentType.Application.Json)
+            setBody(request.arguments)
         }.bodyAsText().let { text ->
             CallToolResult(listOf(TextContent(text)))
         }

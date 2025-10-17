@@ -22,15 +22,19 @@ Currently supported filter conditions:
 You can run the JAR file to see the CLI help.
 
 ```
-Usage: openapi-mcp [-hV] [--include-http-method=<includeHttpMethods>[,
+Usage: openapi-mcp [-hV] [--header=<headers>[,<headers>...]]...
+                   [--include-http-method=<includeHttpMethods>[,
                    <includeHttpMethods>...]]...
                    [--include-operation-id=<includeOperationIds>[,
                    <includeOperationIds>...]]... [--include-path=<includePaths>
                    [,<includePaths>...]]... [--include-tag=<includeTags>[,
-                   <includeTags>...]]... <openapiSpec>
+                   <includeTags>...]]... [--query-param=<queryParams>[,
+                   <queryParams>...]]... <openapiSpec>
 Run OpenAPI MCP server
       <openapiSpec>   File path or URL of OpenAPI spec
   -h, --help          Show this help message and exit.
+      --header=<headers>[,<headers>...]
+                      Headers (comma separated with format a=b)
       --include-http-method=<includeHttpMethods>[,<includeHttpMethods>...]
                       Include operations with HTTP methods (comma separated)
       --include-operation-id=<includeOperationIds>[,<includeOperationIds>...]
@@ -39,6 +43,8 @@ Run OpenAPI MCP server
                       Include operations with paths (comma separated)
       --include-tag=<includeTags>[,<includeTags>...]
                       Include operations with tags (comma separated)
+      --query-param=<queryParams>[,<queryParams>...]
+                      Query params (comma separated with format a=b)
   -V, --version       Print version information and exit.
 ```
 
@@ -49,7 +55,7 @@ Run OpenAPI MCP server
 Download latest [release JAR file](https://github.com/JavaAIDev/openapi-mcp-server/releases) and run it using `java -jar`.
 
 ```sh
-java -jar openapi-mcp-server-0.1.3-all.jar https://api.apis.guru/v2/specs/exchangerate-api.com/4/openapi.json
+java -jar openapi-mcp-server-0.1.4-all.jar https://api.apis.guru/v2/specs/exchangerate-api.com/4/openapi.json
 ```
 
 ### Container
