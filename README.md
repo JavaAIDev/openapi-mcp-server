@@ -2,7 +2,7 @@
 
 Convert OpenAPI spec to MCP server, OpenAPI operations as tools.
 
-This MCP server uses stdio transport.
+This MCP server uses `stdio` transport.
 
 ## CLI Options
 
@@ -18,6 +18,13 @@ Currently supported filter conditions:
 | Path         | `--include-path`         | `--include-path=/holidays`    |
 | Operation Id | `--include-operation-id` | `--include-operation-id=Root` |
 | Tag          | `--include-tag`          | `--include-tag=info`          |
+
+The HTTP requests sent to the API can be customized by specifying query parameters and headers.
+
+| Option      | CLI option               | Example                     |
+|-------------|--------------------------|-----------------------------|
+| Query Param | `--query-param`          | `--query-param=k1=v1,k2=v2` |
+| Header      | `--header`               | `--header=h1=v1,h2=v2`      |
 
 You can run the JAR file to see the CLI help.
 
